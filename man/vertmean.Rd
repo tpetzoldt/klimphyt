@@ -135,11 +135,6 @@ legend("topright", col=c("blue", "red", "green"), lwd=2, cex=0.7,
 vertmean(depth, pconc, level, top=0, bot=12, weight.vol, total=TRUE)
 
 }
-\seealso{
-\code{\link{coriolis}}, \code{\link{viscosity}},
-\code{\link{diffcoeff}}, \code{\link{ssd2rad}},
-\code{\link{gravity}}
-}
 \author{
 Thomas Petzoldt
 }

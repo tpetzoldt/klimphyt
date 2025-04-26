@@ -52,10 +52,6 @@
 #' points are within the specified depth range or if the total volume is zero.
 #'
 #' @author Thomas Petzoldt
-#' @seealso
-#' \code{\link{coriolis}}, \code{\link{viscosity}},
-#' \code{\link{diffcoeff}}, \code{\link{ssd2rad}},
-#' \code{\link{gravity}}
 #'
 #' @examples
 #'
