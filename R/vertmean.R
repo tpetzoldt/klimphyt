@@ -138,8 +138,8 @@ vertmean <- function(depth, variable, level, top, bot, vol, total = FALSE) {
   if (length(depth) != length(variable)) {
     stop("Arguments 'depth' and 'variable' must have the same length.")
   }
-  if (!is.numeric(level) || length(level) != 1) {
-    stop("Argument 'level' must be a single numeric value.")
+  if (!(is.numeric(level) || is.na(level)) || length(level) != 1) {
+    stop("Argument 'level' must be a single numeric value or NA.")
   }
   if (!is.numeric(top) || length(top) != 1) {
     stop("Argument 'top' must be a single numeric value.")
