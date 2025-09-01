@@ -54,7 +54,5 @@ hypso$sediment_area(c(160, 166))         # sediment area of hypo- and epilimnion
 
 }
 \seealso{
-\code{\link{hypso_bautzen}}, an example of a hypsographic table \cr
-\code{\link{areaFunction}}, functions to create a hypsographic table for
-lakes with conical shape.
+\code{\link{hypso_bautzen}}, an example of a hypsographic table
 }

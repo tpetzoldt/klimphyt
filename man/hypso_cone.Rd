@@ -18,8 +18,8 @@ zmax   <- 30                            # maximum depth (m)
 Amax   <- 12.07 * 1000 * 1000           # total Area (m^2)
 depth  <- seq(30, 0, -.1)               # depth (m)
 
-hypso_cone <- data.frame(depth = depth, 
-  volume = volume(Amax, zmax, depth), 
+hypso_cone <- data.frame(depth = depth,
+  volume = volume(Amax, zmax, depth),
   area=area(Amax, zmax, depth)
 )
 
@@ -29,8 +29,8 @@ hypso_cone$level <- zmax - hypso_cone$depth
 
 }
 \references{
-Sachse, R., Petzoldt, T., Blumstock, M., Moreira, S., P{\"a}tzig, M.,
-R{\"u}cker, J., Janse, J. H., Mooij, W. M., Hilt, S. (2014)
+Sachse, R., Petzoldt, T., Blumstock, M., Moreira, S., Pätzig, M.,
+Rücker, J., Janse, J. H., Mooij, W. M., Hilt, S. (2014)
 Extending one-dimensional models for deep lakes to simulate the impact of
 submerged macrophytes on water quality.
 Environmental Modelling and Software, 61, 410-423

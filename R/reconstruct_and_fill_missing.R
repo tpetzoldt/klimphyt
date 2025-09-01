@@ -143,7 +143,7 @@ reconstruct_and_fill_missing <- function(data, keys, completion_col, date_col,
 
   ## Add dummy column to data and if needed
   if (is_dummy_needed) {
-    data <- data |> mutate(!!sym(dummy_col_name) := 1)
+    data <- data |> dplyr::mutate(!!sym(dummy_col_name) := 1)
     keys_for_processing <- c(original_keys, dummy_col_name) # Add dummy to keys for join
     inner_entity_cols_for_processing <- dummy_col_name # Inner entity is the dummy column
   }

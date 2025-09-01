@@ -4,9 +4,10 @@
 \name{klimphyt-package}
 \alias{klimphyt}
 \alias{klimphyt-package}
-\title{klimphyt: Helper Functions for the KlimPhyt Project}
+\title{Helper Functions for the KlimPhyt Project}
 \description{
-Support data management and visualisation of phytoplankton time series.
+This package provides some tools that may eventually be transferred to
+other packages.
 }
 \seealso{
 Useful links:
@@ -16,7 +17,6 @@ Useful links:
 
 }
 \author{
-\strong{Maintainer}: Thomas Petzoldt \email{thomas.petzoldt@tu-dresden.de} (\href{https://orcid.org/0000-0002-4951-6468}{ORCID}) (042aqky30)
+\strong{Maintainer}: Thomas Petzoldt \email{thomas.petzoldt@tu-dresden.de} (\href{https://orcid.org/0000-0002-4951-6468}{ORCID})
 
 }
-\keyword{internal}
