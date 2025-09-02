@@ -45,15 +45,12 @@ phyto_peak_summary <- function(phyto_series, peak_obj, cutoff_ratio = 0.1,
 
   tbl_max <- phyto_series |>
     group_by(peakid) |>
-    summarize(maxpeak = max(bv), tmax = date[which.max(bv)], .groups = "drop")
+    summarize(maxpeak = max(bv, na.rm = TRUE), tmax = date[which.max(bv)], .groups = "drop")
 
   peak_summary <- phyto_series |>
     left_join(tbl_max, by = "peakid") |>
-    mutate(
-      is_peak = bv > cutoff_ratio * maxpeak,
-      tmax = as.numeric(tmax),
-      t = as.numeric(date)
-    )
+    mutate(is_peak = bv > cutoff_ratio * maxpeak) |>
+    mutate(tmax=as.numeric(tmax), t = as.numeric(date))
 
   if (use_interpolation) {
     # Method 1: Use linear interpolation for more accurate start/end and Fint
