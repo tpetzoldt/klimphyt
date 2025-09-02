@@ -6,8 +6,8 @@
 #' The function supports both predefined and custom transformations.
 #'
 #' @param df A data frame containing the plot data with columns:
-#'   \code{Nr}, \code{Year}, \code{Tstart}, \code{Ymax}, \code{Fint}, \code{Dpeak},
-#'   \code{Skew}, and \code{Form}.
+#'   \code{Nr}, \code{Year}, \code{Tstart}, \code{Ymax}, \code{Dpeak}, and
+#'   \code{Skew}.
 #' @param y_transform A character string specifying a predefined transformation
 #'   or a custom function.
 #'   \itemize{
@@ -45,10 +45,8 @@
 #'   Year = c(1975, 1975, 1976, 1976),
 #'   Tstart = c(71.2, 154.4, 293.6, 71),
 #'   Ymax = c(2.78, 0.5, 0.76, 2.65),
-#'   Fint = c(86.69, 12.85, 37.84, 168),
 #'   Dpeak = c(57.5, 52.8, 84.2, 108.6),
-#'   Skew = c(0.57, 0.64, 0.49, 0.37),
-#'   Form = c(0.54, 0.49, 0.59, 0.58)
+#'   Skew = c(0.57, 0.64, 0.49, 0.37)
 #' )
 #'
 #' # Example 1: Using a predefined transformation (cube root)
@@ -78,7 +76,8 @@
 #'
 #' @export
 #'
-peak_patterns <- function(df, y_transform = "cbrt", n_months, title, subtitle, xlab, ylab) {
+peak_patterns <- function(df, y_transform = "cbrt", n_months = 12,
+                          title = "", subtitle="", xlab="Months", ylab="Year") {
 
   # Determine the transformation function based on the input
   if (is.character(y_transform)) {
@@ -101,17 +100,14 @@ peak_patterns <- function(df, y_transform = "cbrt", n_months, title, subtitle, x
   # Perform the transformation and normalization.
   df_transformed <- df |>
     mutate(
-      Ymax_transformed = transform_func(Ymax),
-      Fint_transformed = transform_func(Fint)
+      Ymax_transformed = transform_func(Ymax)
     )
 
   max_ymax <- max(df_transformed$Ymax_transformed)
-  max_fint <- max(df_transformed$Fint_transformed)
 
   df_final <- df_transformed |>
     mutate(
-      Ymax_rel = Ymax_transformed / max_ymax,
-      Fint_rel = Fint_transformed / max_fint
+      Ymax_rel = Ymax_transformed / max_ymax
     )
 
   # Define the months for the axis labels
