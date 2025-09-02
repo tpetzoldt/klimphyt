@@ -97,7 +97,7 @@ phyto_peak_summary <- function(phyto_series, peak_obj, cutoff_ratio = 0.1,
 
   peak_summary <- peak_summary |>
     mutate(Year = year(date), Tstart = Tstart %% 365.25) |>
-    dlpyr::filter(Dpeak < max_peak_len) # workaround to suppress extremely long peaks
+    dplyr::filter(Dpeak < max_peak_len) # workaround to suppress extremely long peaks
 
   return(peak_summary)
 }
