@@ -9,7 +9,8 @@ phyto_peak_summary(
   peak_obj,
   cutoff_ratio = 0.1,
   max_peak_len = 365,
-  use_interpolation = FALSE
+  use_interpolation = FALSE,
+  min_peakwidth = 3
 )
 }
 \arguments{
@@ -28,22 +29,26 @@ abnormally long peaks.}
 
 \item{use_interpolation}{A logical value. If \code{TRUE}, the function uses
 linear interpolation to more accurately estimate the peak's start time, end
-time, and integrated value. If \code{FALSE} (default), it uses a simpler,
+time, and integrated value (experimental!).
+If \code{FALSE} (default), it uses a simpler,
 non-interpolated method based on the first and last data points above a
 threshold.}
+
+\item{min_peakwidth}{If \code{use_interpolation = TRUE}, minimum witch of
+peaks consisting of a single value only.}
 }
 \value{
 A data frame summarizing each identified peak with columns for:
 \itemize{
+\item \code{peakid, Nr}: The unique peak ID.
 \item \code{date}: The first date of the peak.
-\item \code{Nr}: The unique peak ID.
+\item \code{Year}: The year of the peak.
 \item \code{Tstart}: The start time of the peak.
-\item \code{end}: The end time of the peak.
+\item \code{Tend}: The end time of the peak.
 \item \code{Ymax}: The maximum biovolume of the peak.
 \item \code{Dpeak}: The duration of the peak.
 \item \code{Skew}: A measure of the peak's skewness.
 \item \code{Fint}: The integrated area of the peak (only available with interpolation).
-\item \code{Year}: The year of the peak.
 }
 }
 \description{

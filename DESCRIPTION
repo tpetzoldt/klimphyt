@@ -1,12 +1,13 @@
 Package: klimphyt
 Title: Helper Functions for the KlimPhyt Project
-Version: 0.1.9
+Version: 0.2.0
 Authors@R: c(person("Thomas","Petzoldt", role = c("aut", "cre"),
                      email = "thomas.petzoldt@tu-dresden.de",
 					 comment = c(ORCID = "0000-0002-4951-6468")))
 Description: Support data management and visualisation of phytoplankton time series.
 Depends: R (>= 4.2), dplyr
-Imports: stats, graphics, utils, methods, quarto, tidyr, purrr, ggplot2, rlang
+Imports: stats, graphics, utils, methods, quarto, tidyr, purrr, ggplot2, rlang,
+  lubridate
 License: GPL (>= 2)  
 URL: https://github.com/tpetzoldt/klimphyt/
 Encoding: UTF-8

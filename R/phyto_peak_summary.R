@@ -16,21 +16,24 @@
 #'   abnormally long peaks.
 #' @param use_interpolation A logical value. If \code{TRUE}, the function uses
 #'   linear interpolation to more accurately estimate the peak's start time, end
-#'   time, and integrated value. If \code{FALSE} (default), it uses a simpler,
+#'   time, and integrated value (experimental!).
+#'    If \code{FALSE} (default), it uses a simpler,
 #'   non-interpolated method based on the first and last data points above a
 #'   threshold.
+#' @param min_peakwidth If \code{use_interpolation = TRUE}, minimum witch of
+#'   peaks consisting of a single value only.
 #'
 #' @return A data frame summarizing each identified peak with columns for:
 #'   \itemize{
+#'     \item \code{peakid, Nr}: The unique peak ID.
 #'     \item \code{date}: The first date of the peak.
-#'     \item \code{Nr}: The unique peak ID.
+#'     \item \code{Year}: The year of the peak.
 #'     \item \code{Tstart}: The start time of the peak.
-#'     \item \code{end}: The end time of the peak.
+#'     \item \code{Tend}: The end time of the peak.
 #'     \item \code{Ymax}: The maximum biovolume of the peak.
 #'     \item \code{Dpeak}: The duration of the peak.
 #'     \item \code{Skew}: A measure of the peak's skewness.
 #'     \item \code{Fint}: The integrated area of the peak (only available with interpolation).
-#'     \item \code{Year}: The year of the peak.
 #'   }
 #' @export
 #'
@@ -38,45 +41,44 @@
 #' @importFrom rlang .data
 #'
 phyto_peak_summary <- function(phyto_series, peak_obj, cutoff_ratio = 0.1,
-                               max_peak_len=365, use_interpolation = FALSE) {
+                               max_peak_len=365, use_interpolation = FALSE,
+                               min_peakwidth = 3) {
 
   phyto_series <- phyto_series |>
     mutate(peakid = peak_obj$peakid)
 
   tbl_max <- phyto_series |>
     group_by(peakid) |>
-    summarize(maxpeak = max(bv, na.rm = TRUE), tmax = date[which.max(bv)], .groups = "drop")
+    summarize(maxpeak = max(bv), tmax = date[which.max(bv)], .groups = "drop")
 
   peak_summary <- phyto_series |>
     left_join(tbl_max, by = "peakid") |>
-    mutate(is_peak = bv > cutoff_ratio * maxpeak) |>
-    mutate(tmax=as.numeric(tmax), t = as.numeric(date))
+    mutate(
+      is_peak = bv > cutoff_ratio * maxpeak,
+      tmax = as.numeric(tmax),
+      t = as.numeric(date)
+    )
 
   if (use_interpolation) {
-    # Method 1: Use linear interpolation for more accurate start/end and Fint
-     # Method 1: Use linear interpolation for more accurate start/end and Fint
     peak_summary <- peak_summary |>
+      dplyr::filter(is_peak) |>
       group_by(peakid) |>
-      # Filter out any groups that have no data points above the threshold
-      filter(any(is_peak)) |>
+      # Use `summarize` with a list-column to capture the results
       summarize(
         date = date[1],
         Nr = peakid[1],
-        threshold = cutoff_ratio * maxpeak[1],
-        result = list(calc_duration(x = .data$t, y = .data$bv, threshold = .data$threshold)),
         Ymax = maxpeak[1],
-        Skew = (.data$tmax[1] - result[[1]]$start) / (result[[1]]$end - result[[1]]$start),
+        tmax = tmax[1],
+        # Apply the helper function to each group
+        peak_data = list(calc_peak_data(
+          df = pick(t, bv, maxpeak, tmax),
+          cutoff_ratio = cutoff_ratio,
+          min_peakwidth = min_peakwidth
+        )),
         .groups = "drop"
       ) |>
-      # Unnest the list-column for a clean data frame
-      dplyr::mutate(
-        Tstart = purrr::map_dbl(.data$result, "start"),
-        end = purrr::map_dbl(.data$result, "end"),
-        Dpeak = purrr::map_dbl(.data$result, "end") - Tstart,
-        Fint = purrr::map_dbl(.data$result, "Fint")
-      ) |>
-      select(-result, -threshold) # Remove the helper columns
-
+      # Unnest the list-column into a wide format
+      tidyr::unnest_wider(peak_data)
   } else {
     # Method 2: Use the original, simpler logic
     peak_summary <- peak_summary |>
@@ -86,17 +88,51 @@ phyto_peak_summary <- function(phyto_series, peak_obj, cutoff_ratio = 0.1,
         date = date[1],
         Nr = peakid[1],
         Tstart = min(t),
-        end = max(t),
+        Tend = max(t),
         Ymax = maxpeak[1],
-        Dpeak = end - Tstart,
+        Dpeak = Tend - Tstart,
         Skew = (tmax[1] - Tstart) / Dpeak,
+        # Calculate Fint using the trapezoidal rule
+        Fint = (function(y, x) {
+          sum((x[-1] - x[-length(x)]) * (y[-1] + y[-length(y)])) / 2
+        })(.data$bv, .data$t),
         .groups = "drop"
       )
   }
 
   peak_summary <- peak_summary |>
     mutate(Year = year(date), Tstart = Tstart %% 365.25) |>
+    select(peakid, Nr, date, Year, Tstart, Tend, Ymax, Dpeak, Skew, Fint)  |>
     dplyr::filter(Dpeak < max_peak_len) # workaround to suppress extremely long peaks
 
   return(peak_summary)
+}
+
+## -----------------------------------------------------------------------------
+## Internal helper to perform the peak calculation on a single peak group
+## -----------------------------------------------------------------------------
+calc_peak_data <- function(df, cutoff_ratio, min_peakwidth) {
+  # Handles the empty group case
+  if (nrow(df) == 0) {
+    return(data.frame(
+      Tstart = NA, Tend = NA, Dpeak = NA, Skew = NA, Fint = NA
+    ))
+  }
+
+  result <- calc_peak_duration(x = df$t, y = df$bv, threshold = cutoff_ratio * df$maxpeak[1])
+
+  # Edge case logic if peak consists of a single value
+  if (result$start == result$end) {
+    result$Fint <- 0
+    result$start <- result$start - min_peakwidth/2
+    result$end <- result$end + min_peakwidth/2
+  }
+
+  return(data.frame(
+    Tstart = result$start,
+    Tend = result$end,
+    Dpeak = result$end - result$start,
+    Skew = (df$tmax[1] - result$start) / (result$end - result$start),
+    Fint = result$Fint
+  ))
 }

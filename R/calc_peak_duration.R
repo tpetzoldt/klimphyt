@@ -19,8 +19,6 @@
 #' }
 #' @export
 #'
-#' @seealso \code{\link{lin_int}}, \code{\link{num_int}}
-#'
 #' @examples
 #' # Create sample data
 #' set.seed(42)

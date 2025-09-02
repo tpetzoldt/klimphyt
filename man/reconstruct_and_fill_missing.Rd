@@ -61,11 +61,14 @@ tbl <- expand.grid(
   species = LETTERS[1:5]) |>
   mutate(value = sample(0:2, n(), replace = TRUE)) |>
   mutate(value2 = value * 10 + sample(0:9, n(), replace = TRUE)) |>
-  ## Filter out some data, including original 0s in 'value' and some combinations
-  filter(value != 0) |> # Remove original 0s in 'value'
-  filter(!(date == "2025-02-12" & species == "B")) |> # Remove a species completely for a date
-  filter(!(date == "2025-03-17" & species == "C")) |> # Remove another species completely for a date
-  filter(!(date == "2025-01-10" & depth > 3)) # Remove depths > 3 for a date, and any species/value combos with them
+  # Filter out some data, including original 0s in 'value' and some combinations
+  filter(value != 0) |>
+  # Remove a species completely for a date
+  filter(!(date == "2025-02-12" & species == "B")) |>
+  # Remove another species completely for a date
+  filter(!(date == "2025-03-17" & species == "C")) |>
+   # Remove depths > 3 for a date, and any species/value combos with them
+  filter(!(date == "2025-01-10" & depth > 3))
 
 # Data before reconstruction (shows missing rows and original values)
 print("--- Original Data (filtered) ---")

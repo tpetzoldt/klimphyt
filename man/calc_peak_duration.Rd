@@ -44,6 +44,3 @@ result <- calc_peak_duration(x_vals, y_vals, threshold)
 
 print(result)
 }
-\seealso{
-\code{\link{lin_int}}, \code{\link{num_int}}
-}
