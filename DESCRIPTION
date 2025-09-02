@@ -1,6 +1,6 @@
 Package: klimphyt
 Title: Helper Functions for the KlimPhyt Project
-Version: 0.1.6
+Version: 0.1.7
 Authors@R: c(person("Thomas","Petzoldt", role = c("aut", "cre"),
                      email = "thomas.petzoldt@tu-dresden.de",
 					 comment = c(ORCID = "0000-0002-4951-6468")))

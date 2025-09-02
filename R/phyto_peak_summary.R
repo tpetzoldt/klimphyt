@@ -10,6 +10,8 @@
 #' @param peak_obj An object (e.g., a data frame or list) that identifies
 #'   individual peaks in the time series, typically containing a \code{peakid}
 #'   column.
+#' @param cutoff_ratio A numeric value to define the minimum value of a peak
+#' related to its maximum.
 #' @param max_peak_len A numeric value to filter out and suppress
 #'   abnormally long peaks.
 #' @param use_interpolation A logical value. If \code{TRUE}, the function uses
@@ -32,11 +34,12 @@
 #'   }
 #' @export
 #'
-#' @importFrom dplyr mutate group_by summarize left_join filter ungroup
+#' @importFrom dplyr mutate group_by summarize left_join ungroup
 #' @importFrom lubridate year
 #' @importFrom rlang .data
 #'
-phyto_peak_summary <- function(phyto_series, peak_obj, max_peak_len, use_interpolation = FALSE) {
+phyto_peak_summary <- function(phyto_series, peak_obj, cutoff_ratio = 0.1,
+                               max_peak_len=365, use_interpolation = FALSE) {
 
   phyto_series <- phyto_series |>
     mutate(peakid = peak_obj$peakid)
@@ -48,7 +51,7 @@ phyto_peak_summary <- function(phyto_series, peak_obj, max_peak_len, use_interpo
   peak_summary <- phyto_series |>
     left_join(tbl_max, by = "peakid") |>
     mutate(
-      is_peak = bv > 0.1 * maxpeak,
+      is_peak = bv > cutoff_ratio * maxpeak,
       tmax = as.numeric(tmax),
       t = as.numeric(date)
     )
@@ -56,13 +59,13 @@ phyto_peak_summary <- function(phyto_series, peak_obj, max_peak_len, use_interpo
   if (use_interpolation) {
     # Method 1: Use linear interpolation for more accurate start/end and Fint
     peak_summary <- peak_summary |>
-      filter(is_peak) |>
+      dplyr::filter(is_peak) |>
       group_by(peakid) |>
-      mutate(threshold = 0.1 * maxpeak[1]) |>
+      mutate(threshold = cutoff_ratio * maxpeak[1]) |>
       # Use `do()` to apply calc_duration to each group
       # A better way would be using summarize and list columns
       do({
-        result <- calc_duration(x = .data$t, y = .data$bv, threshold = .data$threshold[1])
+        result <- calc_peak_duration(x = .data$t, y = .data$bv, threshold = .data$threshold[1])
         data.frame(
           date = .data$date[1],
           Nr = .data$peakid[1],
@@ -79,7 +82,7 @@ phyto_peak_summary <- function(phyto_series, peak_obj, max_peak_len, use_interpo
   } else {
     # Method 2: Use the original, simpler logic
     peak_summary <- peak_summary |>
-      filter(is_peak) |>
+      dplyr::filter(is_peak) |>
       group_by(peakid) |>
       summarize(
         date = date[1],
@@ -95,7 +98,7 @@ phyto_peak_summary <- function(phyto_series, peak_obj, max_peak_len, use_interpo
 
   peak_summary <- peak_summary |>
     mutate(Year = year(date), Tstart = Tstart %% 365.25) |>
-    filter(Dpeak < max_peak_len) # workaround to suppress extremely long peaks
+    dlpyr::filter(Dpeak < max_peak_len) # workaround to suppress extremely long peaks
 
   return(peak_summary)
 }

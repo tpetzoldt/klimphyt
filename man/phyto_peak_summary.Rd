@@ -7,7 +7,8 @@
 phyto_peak_summary(
   phyto_series,
   peak_obj,
-  max_peak_len,
+  cutoff_ratio = 0.1,
+  max_peak_len = 365,
   use_interpolation = FALSE
 )
 }
@@ -18,6 +19,9 @@ It must include columns for \code{date} and \code{bv} (biovolume).}
 \item{peak_obj}{An object (e.g., a data frame or list) that identifies
 individual peaks in the time series, typically containing a \code{peakid}
 column.}
+
+\item{cutoff_ratio}{A numeric value to define the minimum value of a peak
+related to its maximum.}
 
 \item{max_peak_len}{A numeric value to filter out and suppress
 abnormally long peaks.}
