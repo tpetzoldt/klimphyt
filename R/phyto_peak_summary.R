@@ -34,7 +34,6 @@
 #'   }
 #' @export
 #'
-#' @importFrom dplyr mutate group_by summarize left_join ungroup
 #' @importFrom lubridate year
 #' @importFrom rlang .data
 #'

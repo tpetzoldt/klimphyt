@@ -19,7 +19,6 @@
 #'   data. Otherwise, a numeric value can be specified.
 #' @return A data frame with the vertically averaged biovolume (\code{bv}) for
 #'   each \code{date} and \code{group}.
-#' @importFrom dplyr left_join group_by summarise
 #' @importFrom stats na.omit
 #' @importFrom rlang .data
 #'
