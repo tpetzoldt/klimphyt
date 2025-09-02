@@ -114,6 +114,9 @@ peak_patterns <- function(df, y_transform = "cbrt", n_months = 12,
   x_breaks <- seq(0, length.out = n_months, by = 365/12)
   x_months <- rep(c("J", "F", "M", "A", "M", "J", "J", "A", "S", "O", "N", "D"), 3)[1:length(x_breaks)]
 
+  # Identify the years for the y axis
+  y_years <- min(df$Year):max(df$Year)
+
   # Generate the plot. `ggplot` allows us to define the plot elements.
   p <- ggplot() +
     # Draw the triangles (the `CharBox` logic)
@@ -176,7 +179,7 @@ peak_patterns <- function(df, y_transform = "cbrt", n_months = 12,
     ) +
 
     # Invert the y-axis
-    scale_y_reverse(breaks = 1975:1989) +
+    scale_y_reverse(breaks = y_years) +
 
     # Set the x-axis breaks and labels for the months
     scale_x_continuous(
