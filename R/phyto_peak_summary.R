@@ -57,26 +57,28 @@ phyto_peak_summary <- function(phyto_series, peak_obj, cutoff_ratio = 0.1,
 
   if (use_interpolation) {
     # Method 1: Use linear interpolation for more accurate start/end and Fint
+     # Method 1: Use linear interpolation for more accurate start/end and Fint
     peak_summary <- peak_summary |>
-      dplyr::filter(is_peak) |>
       group_by(peakid) |>
-      mutate(threshold = cutoff_ratio * maxpeak[1]) |>
-      # Use `do()` to apply calc_duration to each group
-      # A better way would be using summarize and list columns
-      do({
-        result <- calc_peak_duration(x = .data$t, y = .data$bv, threshold = .data$threshold[1])
-        data.frame(
-          date = .data$date[1],
-          Nr = .data$peakid[1],
-          Tstart = result$start,
-          end = result$end,
-          Ymax = .data$maxpeak[1],
-          Dpeak = result$end - result$start,
-          Skew = (.data$tmax[1] - result$start) / (result$end - result$start),
-          Fint = result$Fint
-        )
-      }) |>
-      ungroup()
+      # Filter out any groups that have no data points above the threshold
+      filter(any(is_peak)) |>
+      summarize(
+        date = date[1],
+        Nr = peakid[1],
+        threshold = cutoff_ratio * maxpeak[1],
+        result = list(calc_duration(x = .data$t, y = .data$bv, threshold = .data$threshold)),
+        Ymax = maxpeak[1],
+        Skew = (.data$tmax[1] - result[[1]]$start) / (result[[1]]$end - result[[1]]$start),
+        .groups = "drop"
+      ) |>
+      # Unnest the list-column for a clean data frame
+      dplyr::mutate(
+        Tstart = purrr::map_dbl(.data$result, "start"),
+        end = purrr::map_dbl(.data$result, "end"),
+        Dpeak = purrr::map_dbl(.data$result, "end") - Tstart,
+        Fint = purrr::map_dbl(.data$result, "Fint")
+      ) |>
+      select(-result, -threshold) # Remove the helper columns
 
   } else {
     # Method 2: Use the original, simpler logic
