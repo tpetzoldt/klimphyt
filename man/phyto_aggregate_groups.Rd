@@ -4,7 +4,7 @@
 \alias{phyto_aggregate_groups}
 \title{Aggregate Phytoplankton Data by Group}
 \usage{
-phyto_aggregate_groups(phyto)
+phyto_aggregate_groups(phyto, fill_missing = TRUE)
 }
 \arguments{
 \item{phyto}{A data frame containing phytoplankton data. The function requires
@@ -15,6 +15,10 @@ the following columns:
 \item \strong{group}: A column for the phytoplankton group/species name.
 \item \strong{bv}: A column with the biovolume or abundance value to be aggregated.
 }}
+
+\item{fill_missing}{Logical value, if \code{TRUE} (default) missing values
+in the vertical profile are set to zero to avoid weighting bias.
+This is especially important for rarer species.}
 }
 \value{
 A data frame with the aggregated biovolume (\code{bv}) for each
